@@ -111,6 +111,41 @@ classdef Quad
       sim(end) = [];
     end
     
+    %
+    % Simulate the nonlinear quadcopter to track an MPC reference
+    %
+    function sim = sim2(quad, ctrl, input_bias)
+      sim.t = 0;
+      sim.x = zeros(12,1);
+      sim.z_hat = zeros(3,1); % Offset free for z-dimension
+      Ts = quad.Ts;
+      Tf = 4;
+      
+      fprintf('Simulating...\n');
+      tic
+      for i = 1:ceil(Tf/Ts)
+        if toc > 2
+          tic
+          fprintf('... %.2f of %.2f seconds\n', i * Ts, Tf);
+        end
+        
+        % Compute reference
+        sim(i).ref = [0.8;0.5;0.0;0.0];
+        
+        % Simulate forward in time
+        sim(i+1).t = sim(i).t + Ts;
+        
+        % Compute control law
+        sim(i).u = ctrl(sim(i).x, sim(i).ref);
+        
+        sim(i+1).x = quad.step(sim(i).x, sim(i).u, Ts);
+        
+        [sim(i).omega, sim(i).theta, sim(i).vel, sim(i).pos] = ...
+          quad.parse_state(sim(i).x);
+      end
+      sim(end) = [];
+    end
+    
     
     %
     % Trace out an MPC in ref_time seconds

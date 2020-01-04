@@ -69,15 +69,15 @@ classdef MPC_Control_z < MPC_Control
       Qf = sys.LQRPenalty;
       
       for k = 1:N-1
-          con = con + (x(:,k+1) == mpc.A*x(:,k) + mpc.B*u(:,k));
-          con = con + (uF*u(:,k) <= uf);
-          obj = obj + x(:,k)'*Q*x(:,k);
-          obj = obj + u(:,k)'*R*u(:,k);
+          con = con + (x(:,k+1) == mpc.A*x(:,k) + mpc.B*(u(:,k)+d_est));
+          con = con + (uF*(u(:,k)+d_est) <= uf);
+          obj = obj + (x(:,k)-xs)'*Q*(x(:,k)-xs);
+          obj = obj + (u(:,k)-us)'*R*(u(:,k)-us);
       end
       
       %Final cost and constrain
-      con = con + (Xf.A*x(:,N) <= Xf.b);
-      obj = obj + x(:,N)'*Qf.H*x(:,N);
+      con = con + (Xf.A*x(:,N) <= Xf.b + Xf.A*xs);
+      obj = obj + ((x(:,N)-xs)'*Qf.H*(x(:,N)-xs));
       
       % YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE 
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -117,7 +117,19 @@ classdef MPC_Control_z < MPC_Control
       con = [];
       obj = 0;
       
-
+      % Limit on inputs
+      umax =  0.2;
+      uF = [1;-1];
+      uf = [umax;umax];
+      
+      % Constrains
+      con = con + (uF*us <= uf);    % Condition on input
+      con = con + (xs == mpc.A*xs + mpc.B*(us + d_est));% Condition to satify the referance
+      con = con + (ref == mpc.C*xs);% Condition to satify the referance
+      
+      % Objective
+      obj   = obj + us^2;           % Minimize the input at steady state
+      
       % YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE 
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
       
@@ -139,10 +151,20 @@ classdef MPC_Control_z < MPC_Control
       % YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE 
       % You can use the matrices mpc.A, mpc.B, mpc.C and mpc.D
       
-      A_bar = [];
-      B_bar = [];
-      C_bar = [];
-      L = [];
+      nx   = size(mpc.A,1);
+      nu   = size(mpc.B,2);
+      ny   = size(mpc.C,1);
+      
+      Cd = 0;
+      Bd = mpc.B;
+      
+      A_bar = [mpc.A Bd ; zeros(nu, nx) eye(nu)];
+      B_bar = [mpc.B ; zeros(1,nu)];
+      C_bar = [mpc.C Cd];
+      
+      F = [0.5,0.6,0.7];
+      L = -place(A_bar',C_bar',F)';
+      
       
       % YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE 
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

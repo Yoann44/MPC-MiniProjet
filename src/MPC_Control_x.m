@@ -63,13 +63,13 @@ classdef MPC_Control_x < MPC_Control
           con = con + (x(:,k+1) == mpc.A*x(:,k) + mpc.B*u(:,k));
           con = con + (xF*x(:,k) <= xf);
           con = con + (uF*u(:,k) <= uf);
-          obj = obj + x(:,k)'*Q*x(:,k);
-          obj = obj + u(:,k)'*R*u(:,k);
+          obj = obj + (x(:,k)-xs)'*Q*(x(:,k)-xs);
+          obj = obj + (u(:,k)-us)'*R*(u(:,k)-us);
       end
       
       %Final cost and constrain
-      con = con + (Xf.A*x(:,N) <= Xf.b);
-      obj = obj + x(:,N)'*Qf.H*x(:,N);
+      con = con + (Xf.A*x(:,N) <= Xf.b + Xf.A*xs);
+      obj = obj + ((x(:,N)-xs)'*Qf.H*(x(:,N)-xs));
       
       % YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE 
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -105,6 +105,24 @@ classdef MPC_Control_x < MPC_Control
       con = [];
       obj = 0;
       
+      % Limit on inputs
+      umax =  0.3;
+      uF = [1;-1];
+      uf = [umax;umax];
+      
+      % Limit on states (to stay in lineare part)
+      amax =  0.035;
+      xF = [0 1 0 0 ; 0 -1 0 0];
+      xf = [amax ; amax];
+      
+      % Constrains
+      con = con + (xF*xs <= xf); % Condition on state
+      con = con + (uF*us <= uf); % Condition on input
+      con = con + (xs == mpc.A*xs + mpc.B*us);
+      con = con + (ref == mpc.C*xs);         % Condition to satify the referance
+      
+      % Objective
+      obj   = obj + us^2;              % Minimize the input at steady state
       
       % YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE 
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

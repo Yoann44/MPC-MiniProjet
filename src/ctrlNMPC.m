@@ -3,7 +3,7 @@ function [ctrl] = ctrlNMPC(quad)
     import casadi.*
     opti = casadi.Opti(); 
     % Optimization problem
-    N = 25; % MPC horizon [SET THIS VARIABLE]
+    N = 10; % MPC horizon [SET THIS VARIABLE]
     h = 1/5;
     
     %????decision variables?????????
@@ -22,8 +22,8 @@ function [ctrl] = ctrlNMPC(quad)
     
     opti.minimize(...
       5*X(12,:)*X(12,:)' + ... % Level flight
-      1*(X(10,:) - REF(1))*(X(10,:) - REF(1))' + ... % Go to ref X
-      1*(X(11,:) - REF(2))*(X(11,:) - REF(2))' + ... % Go to ref Y
+      0.5*(X(10,:) - REF(1))*(X(10,:) - REF(1))' + ... % Go to ref X
+      0.5*(X(11,:) - REF(2))*(X(11,:) - REF(2))' + ... % Go to ref Y
       20*(X(12,:) - REF(3))*(X(12,:) - REF(3))' + ... % Go to ref Z
       0.5*(X(6,:) - REF(4))*(X(6,:) - REF(4))' + ... % Go to ref Yaw
       0.1*U(1,:)*U(1,:)' + ... % Minimize cmd

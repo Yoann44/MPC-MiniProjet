@@ -57,13 +57,13 @@ classdef MPC_Control_yaw < MPC_Control
       for k = 1:N-1
           con = con + (x(:,k+1) == mpc.A*x(:,k) + mpc.B*u(:,k));
           con = con + (uF*u(:,k) <= uf);
-          obj = obj + x(:,k)'*Q*x(:,k);
-          obj = obj + u(:,k)'*R*u(:,k);
+          obj = obj + (x(:,k)-xs)'*Q*(x(:,k)-xs);
+          obj = obj + (u(:,k)-us)'*R*(u(:,k)-us);
       end
       
       %Final cost and constrain
-      con = con + (Xf.A*x(:,N) <= Xf.b);
-      obj = obj + x(:,N)'*Qf.H*x(:,N);
+      con = con + (Xf.A*x(:,N) <= Xf.b + Xf.A*xs);
+      obj = obj + ((x(:,N)-xs)'*Qf.H*(x(:,N)-xs));
       
       % YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE 
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -94,11 +94,23 @@ classdef MPC_Control_yaw < MPC_Control
       ref = sdpvar;            
             
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-      % YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE       
+      % YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE 
       % You can use the matrices mpc.A, mpc.B, mpc.C and mpc.D
       con = [];
       obj = 0;
-
+      
+      % Limit on inputs
+      umax =  0.2;
+      uF = [1;-1];
+      uf = [umax;umax];
+      
+      % Constrains
+      con = con + (uF*us <= uf);    % Condition on input
+      con = con + (xs == mpc.A*xs + mpc.B*us);% Condition to satify the referance
+      con = con + (ref == mpc.C*xs);% Condition to satify the referance
+      
+      % Objective
+      obj   = obj + us^2;           % Minimize the input at steady state
       
       % YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE 
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
