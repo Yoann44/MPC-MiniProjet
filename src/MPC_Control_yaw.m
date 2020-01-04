@@ -20,7 +20,7 @@ classdef MPC_Control_yaw < MPC_Control
       us = sdpvar(m, 1);
       
       % SET THE HORIZON HERE
-      N = ...
+      N = 15;
       
       % Predicted state and input trajectories
       x = sdpvar(n, N);
@@ -36,7 +36,34 @@ classdef MPC_Control_yaw < MPC_Control
       % WRITE THE CONSTRAINTS AND OBJECTIVE HERE
       con = [];
       obj = 0;
-
+      
+      % Limit on inputs
+      umax =  0.2;
+      uF = [1;-1];
+      uf = [umax;umax];
+      
+      % Cost
+      Q    = eye(n);
+      R    = 0.2 .* eye(m);
+      
+      sys = LTISystem('A',mpc.A,'B',mpc.B);
+      sys.x.penalty = QuadFunction(Q);
+      sys.u.penalty = QuadFunction(R);
+      %sys.x.min = [-10;-10;-amax;-10]; sys.x.max = [10;10;amax;10];
+      sys.u.min = [-umax]; sys.u.max = [umax];
+      Xf = sys.LQRSet;
+      Qf = sys.LQRPenalty;
+      
+      for k = 1:N-1
+          con = con + (x(:,k+1) == mpc.A*x(:,k) + mpc.B*u(:,k));
+          con = con + (uF*u(:,k) <= uf);
+          obj = obj + x(:,k)'*Q*x(:,k);
+          obj = obj + u(:,k)'*R*u(:,k);
+      end
+      
+      %Final cost and constrain
+      con = con + (Xf.A*x(:,N) <= Xf.b);
+      obj = obj + x(:,N)'*Qf.H*x(:,N);
       
       % YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE 
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
