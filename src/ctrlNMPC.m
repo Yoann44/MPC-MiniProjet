@@ -21,11 +21,13 @@ function [ctrl] = ctrlNMPC(quad)
     f_discrete = @(x,u) RK4(x,u,h,f);
     
     opti.minimize(...
-      5*X(12,:)*X(12,:)' + ... % Level flight
-      0.5*(X(10,:) - REF(1))*(X(10,:) - REF(1))' + ... % Go to ref X
-      0.5*(X(11,:) - REF(2))*(X(11,:) - REF(2))' + ... % Go to ref Y
-      20*(X(12,:) - REF(3))*(X(12,:) - REF(3))' + ... % Go to ref Z
-      0.5*(X(6,:) - REF(4))*(X(6,:) - REF(4))' + ... % Go to ref Yaw
+      2.0*(X(10,:) - REF(1))*(X(10,:) - REF(1))' + ... % Go to ref X
+      2.0*(X(11,:) - REF(2))*(X(11,:) - REF(2))' + ... % Go to ref Y
+      2.0*(X(12,:) - REF(3))*(X(12,:) - REF(3))' + ... % Go to ref Z
+      2.0*(X(6,:) - REF(4))*(X(6,:) - REF(4))' + ... % Go to ref Yaw
+      1.0*(X(quad.ind.vel(1),:))*(X(quad.ind.vel(1),:))' + ... % Minimize Speed on X
+      1.0*(X(quad.ind.vel(2),:))*(X(quad.ind.vel(2),:))' + ... % Minimize Speed on Y
+      1.0*(X(quad.ind.vel(3),:))*(X(quad.ind.vel(3),:))' + ... % Minimize Speed on Z
       0.1*U(1,:)*U(1,:)' + ... % Minimize cmd
       0.1*U(2,:)*U(2,:)' + ... % Minimize cmd
       0.1*U(3,:)*U(3,:)' + ... % Minimize cmd
