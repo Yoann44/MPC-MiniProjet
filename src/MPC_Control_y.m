@@ -59,6 +59,39 @@ classdef MPC_Control_y < MPC_Control
       Xf = sys.LQRSet;
       Qf = sys.LQRPenalty;
       
+      figure;
+      sgtitle("Terminal set for y controler")
+      subplot(3, 2, 1);
+      Xf.projection([1 2]).plot();
+      ylabel("Alpha")
+      xlabel("Velocity alpha")
+    
+      subplot(3, 2, 2);
+      Xf.projection([1 3]).plot();
+      ylabel("Velocity y")
+      xlabel("Velocity alpha")
+      
+      subplot(3, 2, 3);
+      Xf.projection([1 4]).plot();
+      ylabel("Velocity y")
+      xlabel("Velocity alpha")
+      
+      subplot(3, 2, 4);
+      Xf.projection([2 3]).plot();
+      ylabel("y")
+      xlabel("Alpha")
+      
+      subplot(3, 2, 5);
+      Xf.projection([2 4]).plot();
+      ylabel("y")
+      xlabel("Alpha")
+
+      subplot(3, 2, 6);
+      Xf.projection([3 4]).plot();
+      ylabel("y")
+      xlabel("Velocity y")
+      
+      
       for k = 1:N-1
           con = con + (x(:,k+1) == mpc.A*x(:,k) + mpc.B*u(:,k));
           con = con + (xF*x(:,k) <= xf);

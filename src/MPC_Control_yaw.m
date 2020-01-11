@@ -53,6 +53,12 @@ classdef MPC_Control_yaw < MPC_Control
       Xf = sys.LQRSet;
       Qf = sys.LQRPenalty;
       
+      figure;
+      sgtitle("Terminal set for yam controler")
+      Xf.projection([1 2]).plot();
+      ylabel("Gamma")
+      xlabel("Velocity gamma")
+      
       for k = 1:N-1
           con = con + (x(:,k+1) == mpc.A*x(:,k) + mpc.B*u(:,k));
           con = con + (uF*u(:,k) <= uf);

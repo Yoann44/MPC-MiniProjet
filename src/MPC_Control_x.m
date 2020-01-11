@@ -47,6 +47,41 @@ classdef MPC_Control_x < MPC_Control
       xF = [0 1 0 0 ; 0 -1 0 0];
       xf = [amax ; amax];
       
+      figure;
+      sgtitle("Terminal set for x controler")
+      subplot(3, 2, 1);
+      Xf.projection([1 2]).plot();
+      ylabel("Beta")
+      xlabel("Velocity beta")
+    
+      subplot(3, 2, 2);
+      Xf.projection([1 3]).plot();
+      ylabel("Velocity x")
+      xlabel("Velocity beta")
+      
+      subplot(3, 2, 3);
+      Xf.projection([1 4]).plot();
+      ylabel("x")
+      xlabel("Velocity beta")
+      
+      subplot(3, 2, 4);
+      Xf.projection([2 3]).plot();
+      ylabel("Velocity x")
+      xlabel("Beta")
+      
+      subplot(3, 2, 5);
+      Xf.projection([2 4]).plot();
+      ylabel("x")
+      xlabel("Beta")
+
+      subplot(3, 2, 6);
+      Xf.projection([3 4]).plot();
+      ylabel("x")
+      xlabel("Velocity x")
+      
+      
+      
+      
       % Cost
       Q    = diag([0.1 1.0 0.1 0.1]);
       R     = 1.0;
