@@ -2,7 +2,7 @@ clear all
 close all
 clc
 
-BIAS = +0.1;
+BIAS = -0.1;
 
 Ts       = 1/5;
 quad     = Quad(Ts);

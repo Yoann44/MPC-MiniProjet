@@ -57,13 +57,12 @@ classdef MPC_Control_z < MPC_Control
       uf = [umax;umax];
       
       % Cost
-      Q    = eye(n);
-      R    = 0.2 .* eye(m);
+      Q    = diag([0.1 1.0]);
+      R    = 1.0;
       
       sys = LTISystem('A',mpc.A,'B',mpc.B);
       sys.x.penalty = QuadFunction(Q);
       sys.u.penalty = QuadFunction(R);
-      %sys.x.min = [-10;-10;-amax;-10]; sys.x.max = [10;10;amax;10];
       sys.u.min = [-umax]; sys.u.max = [umax];
       Xf = sys.LQRSet;
       Qf = sys.LQRPenalty;
@@ -162,7 +161,7 @@ classdef MPC_Control_z < MPC_Control
       B_bar = [mpc.B ; zeros(1,nu)];
       C_bar = [mpc.C Cd];
       
-      F = [0.5,0.6,0.7];
+      F = [0.1,0.2,0.3];
       L = -place(A_bar',C_bar',F)';
       
       

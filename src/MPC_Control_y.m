@@ -48,13 +48,13 @@ classdef MPC_Control_y < MPC_Control
       xf = [bmax ; bmax];
       
       % Cost
-      Q    = eye(n);
-      R    = 0.2 .* eye(m);
+      Q    = diag([0.1 1.0 0.1 0.1]);
+      R    = 1.0;
       
       sys = LTISystem('A',mpc.A,'B',mpc.B);
       sys.x.penalty = QuadFunction(Q);
       sys.u.penalty = QuadFunction(R);
-      sys.x.min = [-10;-bmax;-10;-10]; sys.x.max = [10;bmax;10;10];
+      sys.x.min(2) = -bmax; sys.x.max(2) = bmax;
       sys.u.min = [-umax]; sys.u.max = [umax];
       Xf = sys.LQRSet;
       Qf = sys.LQRPenalty;
