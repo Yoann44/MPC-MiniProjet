@@ -47,7 +47,19 @@ classdef MPC_Control_x < MPC_Control
       xF = [0 1 0 0 ; 0 -1 0 0];
       xf = [amax ; amax];
       
-      figure;
+      % Cost
+      Q    = diag([0.1 1.0 0.1 0.1]);
+      R     = 1.0;
+      
+      sys = LTISystem('A',mpc.A,'B',mpc.B);
+      sys.x.penalty = QuadFunction(Q);
+      sys.u.penalty = QuadFunction(R);
+      sys.x.min(2) = -amax; sys.x.max(2) = amax;
+      sys.u.min = [-umax]; sys.u.max = [umax];
+      Xf = sys.LQRSet;
+      Qf = sys.LQRPenalty;
+      
+       figure;
       sgtitle("Terminal set for x controler")
       subplot(3, 2, 1);
       Xf.projection([1 2]).plot();
@@ -78,21 +90,6 @@ classdef MPC_Control_x < MPC_Control
       Xf.projection([3 4]).plot();
       ylabel("x")
       xlabel("Velocity x")
-      
-      
-      
-      
-      % Cost
-      Q    = diag([0.1 1.0 0.1 0.1]);
-      R     = 1.0;
-      
-      sys = LTISystem('A',mpc.A,'B',mpc.B);
-      sys.x.penalty = QuadFunction(Q);
-      sys.u.penalty = QuadFunction(R);
-      sys.x.min(2) = -amax; sys.x.max(2) = amax;
-      sys.u.min = [-umax]; sys.u.max = [umax];
-      Xf = sys.LQRSet;
-      Qf = sys.LQRPenalty;
       
       for k = 1:N-1
           con = con + (x(:,k+1) == mpc.A*x(:,k) + mpc.B*u(:,k));
