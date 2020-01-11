@@ -2,6 +2,9 @@ clear all
 close all
 clc
 
+set(groot,'DefaultAxesFontSize',14);
+set(groot,'DefaultLineLineWidth',1.5);
+
 Ts       = 1/5;
 quad     = Quad(Ts);
 [xs, us] = quad.trim();
@@ -29,16 +32,16 @@ yaw0 = [0;0];
 % Get control inputs with
 
 [x_x, u_x] = simulate(sys_x, mpc_x, x0, x_ref, t, Ts);
-plotSimulationXY(x_x, u_x, t);
+plotSimulationXY(x_x, u_x, t, "X", x_ref);
 
 [x_y, u_y] = simulate(sys_y, mpc_y, y0, y_ref, t, Ts);
-plotSimulationXY(x_y, u_y, t);
+plotSimulationXY(x_y, u_y, t, "Y", y_ref);
 
 [x_z, u_z] = simulate(sys_z, mpc_z, z0, z_ref, t, Ts);
-plotSimulationZ(x_z, u_z, t);
+plotSimulationZ(x_z, u_z, t, z_ref);
 
 [x_yaw, u_yaw] = simulate(sys_yaw, mpc_yaw, yaw0, yaw_ref, t, Ts);
-plotSimulationYaw(x_yaw, u_yaw, t);
+plotSimulationYaw(x_yaw, u_yaw, t, yaw_ref);
 
 function [x, u] = simulate(sys, ctrl, x0, ref, t, Ts)
     sys_d = c2d(sys, Ts);
@@ -51,54 +54,92 @@ function [x, u] = simulate(sys, ctrl, x0, ref, t, Ts)
     end
 end
 
-function [] = plotSimulationXY(x, u, t)
+function [] = plotSimulationXY(x, u, t, axe, ref)
     figure;
-    subplot(4, 1, 1);
+    
+    sgtitle(sprintf("Simulation of %s axis", axe))
+    subplot(3, 2, [1 2]);
     plot(t, x(4,:));
-    legend("Position [m]")
+    ylim([min(x(4,:))-0.2 max(x(4,:))+0.2])
+    hold on;
+    plot(t, ref*ones(1,length(t)), "--", "color", "#EDB120");
+    legend("sim", "ref")
+    ylabel("Position [m]")
     xlabel("Time [s]")
-    subplot(4, 1, 2);
+    
+    subplot(3, 2, 3);
     plot(t, x(3,:));
-    legend("Velocity [m/s]")
+    legend("sim")
+    ylabel("Velocity [m/s]")
     xlabel("Time [s]")
-    subplot(4, 1, 3);
+    
+    subplot(3, 2, 4);
     plot(t, x(2,:));
-    legend("Angle [rad]")
+    legend("sim")
+    ylabel("Angle [rad]")
     xlabel("Time [s]")
-    subplot(4, 1, 4);
+    
+    subplot(3, 2, 5);
     plot(t, x(1,:));
-    legend("Angular rate [rad/s]")
+    legend("sim")
+    ylabel("Angular rate [rad/s]")
+    xlabel("Time [s]")
+    
+    subplot(3, 2, 6);
+    plot(t(1:end-1), u);
+    legend("sim")
+    ylabel("Command")
     xlabel("Time [s]")
 end
 
-function [] = plotSimulationZ(x, u, t)
+function [] = plotSimulationZ(x, u, t, ref)
     figure;
-    subplot(3, 1, 1);
+    sgtitle("Simulation of Z axis")
+    
+    subplot(2, 2, [1 2]);
     plot(t, x(2,:));
-    legend("Position [m]")
+    ylim([min(x(2,:))-0.2 max(x(2,:))+0.2])
+    hold on;
+    plot(t, ref*ones(1,length(t)), "--", "color", "#EDB120");
+    legend("sim", "ref")
+    ylabel("Position [m]")
     xlabel("Time [s]")
-    subplot(3, 1, 2);
+    
+    subplot(2, 2, 3);
     plot(t, x(1,:));
-    legend("Velocity [m/s]")
+    legend("sim")
+    ylabel("Velocity [m/s]")
     xlabel("Time [s]")
-    subplot(3, 1, 3);
+    
+    subplot(2, 2, 4);
     plot(t(1:end-1), u);
-    legend("Command")
+    legend("sim")
+    ylabel("Command")
     xlabel("Time [s]")
 end
 
-function [] = plotSimulationYaw(x, u, t)
+function [] = plotSimulationYaw(x, u, t, ref)
     figure;
-    subplot(3, 1, 1);
+    sgtitle("Simulation of Yaw axis")
+    
+    subplot(2, 2, [1 2]);
     plot(t, x(2,:));
-    legend("Heading [rad]")
+    ylim([min(x(2,:))-0.2 max(x(2,:))+0.2])
+    hold on;
+    plot(t, ref*ones(1,length(t)), "--", "color", "#EDB120");
+    legend("sim", "ref")
+    ylabel("Heading [rad]")
     xlabel("Time [s]")
-    subplot(3, 1, 2);
+    
+    subplot(2, 2, 3);
     plot(t, x(1,:));
-    legend("Angular Rate [rad/s]")
+    legend("sim")
+    ylabel("Angular Rate [rad/s]")
     xlabel("Time [s]")
-    subplot(3, 1, 3);
+    
+    subplot(2, 2, 4);
     plot(t(1:end-1), u);
-    legend("Command")
+    legend("sim")
+    ylabel("Command")
     xlabel("Time [s]")
 end
