@@ -59,37 +59,40 @@ classdef MPC_Control_x < MPC_Control
       Xf = sys.LQRSet;
       Qf = sys.LQRPenalty;
       
-       figure;
-      sgtitle("Terminal set for x controler")
-      subplot(3, 2, 1);
-      Xf.projection([1 2]).plot();
-      ylabel("Beta")
-      xlabel("Velocity beta")
-    
-      subplot(3, 2, 2);
-      Xf.projection([1 3]).plot();
-      ylabel("Velocity x")
-      xlabel("Velocity beta")
-      
-      subplot(3, 2, 3);
-      Xf.projection([1 4]).plot();
-      ylabel("x")
-      xlabel("Velocity beta")
-      
-      subplot(3, 2, 4);
-      Xf.projection([2 3]).plot();
-      ylabel("Velocity x")
-      xlabel("Beta")
-      
-      subplot(3, 2, 5);
-      Xf.projection([2 4]).plot();
-      ylabel("x")
-      xlabel("Beta")
+      global plot_projection;
+      if ~isempty(plot_projection) && plot_projection
+          figure;
+          sgtitle("Terminal set for x controler")
+          subplot(3, 2, 1);
+          Xf.projection([1 2]).plot();
+          ylabel("Beta")
+          xlabel("Velocity beta")
 
-      subplot(3, 2, 6);
-      Xf.projection([3 4]).plot();
-      ylabel("x")
-      xlabel("Velocity x")
+          subplot(3, 2, 2);
+          Xf.projection([1 3]).plot();
+          ylabel("Velocity x")
+          xlabel("Velocity beta")
+
+          subplot(3, 2, 3);
+          Xf.projection([1 4]).plot();
+          ylabel("x")
+          xlabel("Velocity beta")
+
+          subplot(3, 2, 4);
+          Xf.projection([2 3]).plot();
+          ylabel("Velocity x")
+          xlabel("Beta")
+
+          subplot(3, 2, 5);
+          Xf.projection([2 4]).plot();
+          ylabel("x")
+          xlabel("Beta")
+
+          subplot(3, 2, 6);
+          Xf.projection([3 4]).plot();
+          ylabel("x")
+          xlabel("Velocity x")
+      end
       
       for k = 1:N-1
           con = con + (x(:,k+1) == mpc.A*x(:,k) + mpc.B*u(:,k));

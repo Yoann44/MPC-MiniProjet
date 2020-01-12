@@ -67,11 +67,14 @@ classdef MPC_Control_z < MPC_Control
       Xf = sys.LQRSet;
       Qf = sys.LQRPenalty;
       
-      figure;
-      sgtitle("Terminal set for z controler")
-      Xf.projection([1 2]).plot();
-      ylabel("z")
-      xlabel("Velocity z")
+      global plot_projection;
+      if ~isempty(plot_projection) && plot_projection
+          figure;
+          sgtitle("Terminal set for z controler")
+          Xf.projection([1 2]).plot();
+          ylabel("z")
+          xlabel("Velocity z")
+      end
       
       for k = 1:N-1
           con = con + (x(:,k+1) == mpc.A*x(:,k) + mpc.B*(u(:,k)+d_est));

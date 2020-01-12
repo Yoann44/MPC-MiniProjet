@@ -5,6 +5,9 @@ clc
 set(groot,'DefaultAxesFontSize',14);
 set(groot,'DefaultLineLineWidth',1.5);
 
+global plot_projection;
+plot_projection = true;
+
 Ts       = 1/5;
 quad     = Quad(Ts);
 [xs, us] = quad.trim();
